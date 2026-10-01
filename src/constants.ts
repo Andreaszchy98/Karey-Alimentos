@@ -1,0 +1,1045 @@
+import { Product, Supplier } from './types';
+
+export const CATEGORIES = ['Todos', 'Jamones', 'Salchichas', 'Chorizos', 'Tocinos', 'Quesos', 'Antojos', 'Chilorio'];
+
+export const INITIAL_SUPPLIERS: Supplier[] = [
+  {
+    id: 'sup_karey',
+    name: 'Karey (Embutidos y Carnes Frías)',
+    code: 'KAREY',
+    contactName: 'Planta Matriz Karey',
+    phone: '800-527-3900',
+    email: 'pedidos@karey.com.mx',
+    address: 'Parque Industrial, Matriz',
+    categoriesSupplied: ['Jamones', 'Salchichas', 'Chorizos', 'Tocinos', 'Antojos', 'Chilorio'],
+    isDefault: true,
+    notes: 'Proveedor principal y fabricante de toda la línea de embutidos, carnes frías y empaquetados.'
+  },
+  {
+    id: 'sup_santa_rita',
+    name: 'Lácteos Santa Rita (Quesos Menonitas)',
+    code: 'STA_RITA',
+    contactName: 'Distribución Santa Rita',
+    phone: '625-581-2200',
+    email: 'ventas@santaritaquesos.com',
+    address: 'Cuauhtémoc, Chihuahua',
+    categoriesSupplied: ['Quesos'],
+    notes: 'Proveedor de Queso Chihuahua Selecto y Menonita Santa Rita (ruedas y barras).'
+  },
+  {
+    id: 'sup_superior',
+    name: 'Quesos Superior & Pomas',
+    code: 'SUP_POMAS',
+    contactName: 'Quesería Superior',
+    phone: '625-582-4400',
+    email: 'contacto@quesossuperior.com',
+    address: 'Colonia Manitoba, Chihuahua',
+    categoriesSupplied: ['Quesos'],
+    notes: 'Proveedor de Queso Superior #7, Superior #2 y Queso Menonita Pomas.'
+  },
+  {
+    id: 'sup_navarro',
+    name: 'Quesería Navarro & Victoria',
+    code: 'NAV_VIC',
+    contactName: 'Distribución Navarro',
+    phone: '378-782-1100',
+    email: 'ventas@quesosnavarro.com',
+    address: 'Los Altos de Jalisco / Chihuahua',
+    categoriesSupplied: ['Quesos'],
+    notes: 'Proveedor de Queso Chihuahua Navarro y Queso Victoria.'
+  },
+  {
+    id: 'sup_volcanes',
+    name: 'Lácteos Los Volcanes & San José',
+    code: 'VOLCANES',
+    contactName: 'Grupo Lácteo Los Volcanes',
+    phone: '55-5804-3000',
+    email: 'atencion@losvolcanes.mx',
+    address: 'Valle de México / Centro',
+    categoriesSupplied: ['Quesos'],
+    notes: 'Proveedor de quesos botaneros, panela, oaxaca y cubicados.'
+  }
+];
+
+export function getInitialSupplierForProduct(name: string, category: string, subcategory?: string): { supplierId: string; supplierName: string } {
+  const n = (name + ' ' + (subcategory || '')).toLowerCase();
+  if (category === 'Quesos') {
+    if (n.includes('santa rita') || n.includes('menonita santa rita')) {
+      return { supplierId: 'sup_santa_rita', supplierName: 'Lácteos Santa Rita (Quesos Menonitas)' };
+    }
+    if (n.includes('superior') || n.includes('pomas')) {
+      return { supplierId: 'sup_superior', supplierName: 'Quesos Superior & Pomas' };
+    }
+    if (n.includes('navarro') || n.includes('victoria')) {
+      return { supplierId: 'sup_navarro', supplierName: 'Quesería Navarro & Victoria' };
+    }
+    return { supplierId: 'sup_volcanes', supplierName: 'Lácteos Los Volcanes & San José' };
+  }
+  return { supplierId: 'sup_karey', supplierName: 'Karey (Embutidos y Carnes Frías)' };
+}
+
+const RAW_INITIAL_PRODUCTS: Product[] = [
+  // QUESOS
+  {
+    id: 'q1',
+    name: 'Q. Chihuahua Selecto Santa Rita Rueda 10 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Santa Rita',
+    price: 148.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Selecto marca Santa Rita, presentación en rueda de aproximadamente 10 kg.',
+    imageUrl: 'https://picsum.photos/seed/q1/400/400'
+  },
+  {
+    id: 'q2',
+    name: 'Q. Chihuahua Selecto Santa Rita Barra 2.2, 1.1 y 1/2 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Santa Rita',
+    price: 150.50,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Selecto marca Santa Rita, presentación en barra de diversos pesos.',
+    imageUrl: 'https://picsum.photos/seed/q2/400/400'
+  },
+  {
+    id: 'q3',
+    name: 'Queso Menonita Santa Rita Barra 2.2, 1.1 y 1/2 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Santa Rita',
+    price: 142.50,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Menonita marca Santa Rita, presentación en barra tradicional.',
+    imageUrl: 'https://picsum.photos/seed/q3/400/400'
+  },
+  {
+    id: 'q4',
+    name: 'Queso Chihuahua Superior #7 Rueda 10 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Superior',
+    price: 141.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Superior #7, rueda de 10 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/q4/400/400'
+  },
+  {
+    id: 'q5',
+    name: 'Queso Chihuahua Superior #2 Rueda 10 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Superior',
+    price: 124.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Superior #2, rueda de 10 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/q5/400/400'
+  },
+  {
+    id: 'q6',
+    name: 'Queso Chih Menonita Pomas Barra 2.2 Kg',
+    category: 'Quesos',
+    subcategory: 'Pomas',
+    price: 128.50,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Menonita Pomas, barra de 2.2 kg.',
+    imageUrl: 'https://picsum.photos/seed/q6/400/400'
+  },
+  {
+    id: 'q7',
+    name: 'Queso Chih Menonita Pomas Barra 1.1 Kg',
+    category: 'Quesos',
+    subcategory: 'Pomas',
+    price: 129.50,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Menonita Pomas, barra de 1.1 kg.',
+    imageUrl: 'https://picsum.photos/seed/q7/400/400'
+  },
+  {
+    id: 'q8',
+    name: 'Queso Chihuahua Menonita Pomas Barra 1/2 kg',
+    category: 'Quesos',
+    subcategory: 'Pomas',
+    price: 132.50,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Menonita Pomas, barra de medio kilo.',
+    imageUrl: 'https://picsum.photos/seed/q8/400/400'
+  },
+  {
+    id: 'q9',
+    name: 'Queso Chih Victoria Rueda 10 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Victoria',
+    price: 138.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Victoria, rueda de 10 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/q9/400/400'
+  },
+  {
+    id: 'q10',
+    name: 'Queso Cubicado 3 Quesos',
+    category: 'Quesos',
+    subcategory: 'Varios',
+    price: 105.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Mezcla de 3 quesos en presentación cubicada.',
+    imageUrl: 'https://picsum.photos/seed/q10/400/400'
+  },
+  {
+    id: 'q11',
+    name: 'Queso Chih Barra Victoria 3 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Victoria',
+    price: 138.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Victoria en barra de 3 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/q11/400/400'
+  },
+  {
+    id: 'q12',
+    name: 'Queso Chihuahua Navarro Barra 2 kg',
+    category: 'Quesos',
+    subcategory: 'Navarro',
+    price: 130.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua marca Navarro en barra de 2 kg.',
+    imageUrl: 'https://picsum.photos/seed/q12/400/400'
+  },
+  {
+    id: 'q13',
+    name: 'Queso Chihuahua Navarro Rayado Bolsa 2.5 kg',
+    category: 'Quesos',
+    subcategory: 'Navarro',
+    price: 130.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Chihuahua Navarro rayado en bolsa de 2.5 kg.',
+    imageUrl: 'https://picsum.photos/seed/q13/400/400'
+  },
+  {
+    id: 'q14',
+    name: 'Queso Mozzarella Barra 3 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Varios',
+    price: 129.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Mozzarella en barra de 3 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/q14/400/400'
+  },
+  {
+    id: 'q15',
+    name: 'Queso Mozzarella Cubicado Bolsa 5 kg',
+    category: 'Quesos',
+    subcategory: 'Varios',
+    price: 76.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Mozzarella cubicado en bolsa de 5 kg.',
+    imageUrl: 'https://picsum.photos/seed/q15/400/400'
+  },
+  {
+    id: 'q16',
+    name: 'Queso Gouda Glambia',
+    category: 'Quesos',
+    subcategory: 'Glambia',
+    price: 129.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Gouda marca Glambia.',
+    imageUrl: 'https://picsum.photos/seed/q16/400/400'
+  },
+  {
+    id: 'q17',
+    name: 'Queso Gouda Victoria Barra 3 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Victoria',
+    price: 134.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Gouda Victoria en barra de 3 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/q17/400/400'
+  },
+  {
+    id: 'q18',
+    name: 'Queso Gouda Reyna Barra 2.2, 1.1 y 1/2 kg aprox',
+    category: 'Quesos',
+    subcategory: 'Reyna',
+    price: 139.50,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Gouda Reyna en presentación de barra.',
+    imageUrl: 'https://picsum.photos/seed/q18/400/400'
+  },
+  {
+    id: 'q19',
+    name: 'Queso Rayado Aguascaliente 1 kg',
+    category: 'Quesos',
+    subcategory: 'Aguascaliente',
+    price: 105.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso rayado marca Aguascaliente en presentación de 1 kg.',
+    imageUrl: 'https://picsum.photos/seed/q19/400/400'
+  },
+  {
+    id: 'q20',
+    name: 'Queso Parmesano Bola Negra Bel Pease Rueda 8 kg',
+    category: 'Quesos',
+    subcategory: 'Bel Pease',
+    price: 225.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Parmesano Bola Negra Bel Pease, rueda de 8 kg.',
+    imageUrl: 'https://picsum.photos/seed/q20/400/400'
+  },
+  {
+    id: 'q21',
+    name: 'Queso Manchego Navarro Barra 2 kg',
+    category: 'Quesos',
+    subcategory: 'Navarro',
+    price: 132.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Manchego Navarro en barra de 2 kg.',
+    imageUrl: 'https://picsum.photos/seed/q21/400/400'
+  },
+  {
+    id: 'q22',
+    name: 'Queso Amarillo Rebanado Piamont con 104 Reb',
+    category: 'Quesos',
+    subcategory: 'Piamont',
+    price: 88.00,
+    unit: 'Pza',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Amarillo rebanado marca Piamont con 104 rebanadas.',
+    imageUrl: 'https://picsum.photos/seed/q22/400/400'
+  },
+  {
+    id: 'q23',
+    name: 'Queso Rallado Polvo Bolsa 5 kg',
+    category: 'Quesos',
+    subcategory: 'Varios',
+    price: 29.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso rallado en polvo en bolsa de 5 kg.',
+    imageUrl: 'https://picsum.photos/seed/q23/400/400'
+  },
+  {
+    id: 'q24',
+    name: 'Queso Rallado Esmeralda Bolsa 5 kg',
+    category: 'Quesos',
+    subcategory: 'Esmeralda',
+    price: 30.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso rallado marca Esmeralda en bolsa de 5 kg.',
+    imageUrl: 'https://picsum.photos/seed/q24/400/400'
+  },
+  {
+    id: 'q25',
+    name: 'Queso Tipo La Paz Pura Leche Barra 6 kg aprox',
+    category: 'Quesos',
+    subcategory: 'La Paz',
+    price: 100.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Tipo La Paz Pura Leche, barra de 6 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/q25/400/400'
+  },
+  {
+    id: 'q26',
+    name: 'Queso Tipo La Paz',
+    category: 'Quesos',
+    subcategory: 'La Paz',
+    price: 68.50,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Tipo La Paz.',
+    imageUrl: 'https://picsum.photos/seed/q26/400/400'
+  },
+  {
+    id: 'q27',
+    name: 'Queso p/ Nachos Chezz Wezz Frasco 4 kg',
+    category: 'Quesos',
+    subcategory: 'Chezz Wezz',
+    price: 170.00,
+    unit: 'Fco',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso para nachos marca Chezz Wezz en frasco de 4 kg.',
+    imageUrl: 'https://picsum.photos/seed/q27/400/400'
+  },
+  {
+    id: 'q28',
+    name: 'Queso p/ Nachos Chezz Wezz Bolsa 1 kg',
+    category: 'Quesos',
+    subcategory: 'Chezz Wezz',
+    price: 37.00,
+    unit: 'Bolsa',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso para nachos marca Chezz Wezz en bolsa de 1 kg.',
+    imageUrl: 'https://picsum.photos/seed/q28/400/400'
+  },
+  {
+    id: 'q29',
+    name: 'Queso Philadelphia 1.9 kg',
+    category: 'Quesos',
+    subcategory: 'Philadelphia',
+    price: 332.00,
+    unit: 'Pza',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso crema Philadelphia presentación de 1.9 kg.',
+    imageUrl: 'https://picsum.photos/seed/q29/400/400'
+  },
+  {
+    id: 'q30',
+    name: 'Queso Philadelphia 8 kg',
+    category: 'Quesos',
+    subcategory: 'Philadelphia',
+    price: 1296.00,
+    unit: 'Pza',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso crema Philadelphia presentación de 8 kg.',
+    imageUrl: 'https://picsum.photos/seed/q30/400/400'
+  },
+  {
+    id: 'q31',
+    name: 'Queso Crema San Patrick 1.360 kg',
+    category: 'Quesos',
+    subcategory: 'San Patrick',
+    price: 140.00,
+    unit: 'Pza',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Crema marca San Patrick presentación de 1.360 kg.',
+    imageUrl: 'https://picsum.photos/seed/q31/400/400'
+  },
+  {
+    id: 'q32',
+    name: 'Queso Cotija Chiapas',
+    category: 'Quesos',
+    subcategory: 'Cotija',
+    price: 102.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso Cotija auténtico de Chiapas.',
+    imageUrl: 'https://picsum.photos/seed/q32/400/400'
+  },
+  {
+    id: 'q33',
+    name: 'Queso Crema Reny Picot 8 kg',
+    category: 'Quesos',
+    subcategory: 'Reny Picot',
+    price: 850.00,
+    unit: 'Pza',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso crema marca Reny Picot presentación de 8 kg.',
+    imageUrl: 'https://picsum.photos/seed/q33/400/400'
+  },
+
+  // JAMONES
+  {
+    id: 'j1',
+    name: 'Embutido de Pavo Turkito Reb Paq. 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Turkito',
+    price: 64.28,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Embutido de pavo rebanado marca Turkito en paquete de 1 kg aprox.',
+    imageUrl: 'https://picsum.photos/seed/j1/400/400'
+  },
+  {
+    id: 'j2',
+    name: 'Embutido de Pavo Turkito Reb Cuadrado 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Turkito',
+    price: 64.28,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Embutido de pavo rebanado cuadrado marca Turkito.',
+    imageUrl: 'https://picsum.photos/seed/j2/400/400'
+  },
+  {
+    id: 'j3',
+    name: 'Jamon Lunch de Cerdo y Pavo Winds Paq. 1 kg',
+    category: 'Jamones',
+    subcategory: 'Winds',
+    price: 124.04,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Lunch de cerdo y pavo marca Winds, paquete de 1 kg.',
+    imageUrl: 'https://picsum.photos/seed/j3/400/400'
+  },
+  {
+    id: 'j4',
+    name: 'Jamon Lunch de Cerdo y Pavo Winds en Pieza',
+    category: 'Jamones',
+    subcategory: 'Winds',
+    price: 115.76,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Lunch de cerdo y pavo marca Winds en pieza completa.',
+    imageUrl: 'https://picsum.photos/seed/j4/400/400'
+  },
+  {
+    id: 'j5',
+    name: 'J. Tipo Americano Winds Cerdo y Pavo Reb Paq. 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Winds',
+    price: 116.42,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Tipo Americano marca Winds rebanado en paquete de 1 kg aprox.',
+    imageUrl: 'https://picsum.photos/seed/j5/400/400'
+  },
+  {
+    id: 'j6',
+    name: 'J. Tipo Americano Piamont de Cerdo y Pavo Reb. Paq. 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 123.38,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Tipo Americano marca Piamont rebanado.',
+    imageUrl: 'https://picsum.photos/seed/j6/400/400'
+  },
+  {
+    id: 'j7',
+    name: 'J. De Pavo y Cerdo Piamont Redondo Reb. Paq. 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 151.48,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón de pavo y cerdo Piamont redondo rebanado.',
+    imageUrl: 'https://picsum.photos/seed/j7/400/400'
+  },
+  {
+    id: 'j8',
+    name: 'J. De Pavo y Cerdo Piamont Ovalado Reb. Paq. 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 133.74,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón de pavo y cerdo Piamont ovalado rebanado.',
+    imageUrl: 'https://picsum.photos/seed/j8/400/400'
+  },
+  {
+    id: 'j9',
+    name: 'J. Tipo Virginia de Pavo Piamont en Pieza',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 136.71,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Tipo Virginia de pavo marca Piamont en pieza.',
+    imageUrl: 'https://picsum.photos/seed/j9/400/400'
+  },
+  {
+    id: 'j10',
+    name: 'J. Tipo Virginia de Pavo Piamont Reb. Paq. 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 145.53,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Tipo Virginia de pavo marca Piamont rebanado.',
+    imageUrl: 'https://picsum.photos/seed/j10/400/400'
+  },
+  {
+    id: 'j11',
+    name: 'J. Tipo Holandes de Cerdo y Pavo Piamont Reb. Paq. 1 kg aprox',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 140.02,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Tipo Holandés marca Piamont rebanado.',
+    imageUrl: 'https://picsum.photos/seed/j11/400/400'
+  },
+  {
+    id: 'j12',
+    name: 'J. Tipo York de Pierna Piamont en Pieza',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 166.65,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón Tipo York de pierna marca Piamont en pieza.',
+    imageUrl: 'https://picsum.photos/seed/j12/400/400'
+  },
+  {
+    id: 'j13',
+    name: 'J. De Pavo Horneado Piamont Reb Pieza',
+    category: 'Jamones',
+    subcategory: 'Piamont',
+    price: 151.60,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Jamón de pavo horneado marca Piamont rebanado.',
+    imageUrl: 'https://picsum.photos/seed/j13/400/400'
+  },
+
+  // SALCHICHAS
+  {
+    id: 's1',
+    name: 'Salchicha Vienna Roja Winds con 20 piezas aprox',
+    category: 'Salchichas',
+    subcategory: 'Winds',
+    price: 32.14,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha Vienna roja marca Winds con 20 piezas aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/s1/400/400'
+  },
+  {
+    id: 's2',
+    name: 'Salchicha de Pavo Hot Dog Turkito Paq. 1.8 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Turkito',
+    price: 92.61,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha de pavo para hot dog marca Turkito.',
+    imageUrl: 'https://picsum.photos/seed/s2/400/400'
+  },
+  {
+    id: 's3',
+    name: 'Salchicha Food Service Paq. 3 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Varios',
+    price: 114.22,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha Food Service en paquete de 3 kg aproximadamente.',
+    imageUrl: 'https://picsum.photos/seed/s3/400/400'
+  },
+  {
+    id: 's4',
+    name: 'Salchicha Vienna Naranja Winds Paq. 1.4 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Winds',
+    price: 58.21,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha Vienna naranja marca Winds.',
+    imageUrl: 'https://picsum.photos/seed/s4/400/400'
+  },
+  {
+    id: 's5',
+    name: 'Salchicha Jumbo de Pavo Piamont Paq. 2.2 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Piamont',
+    price: 139.69,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha Jumbo de pavo marca Piamont.',
+    imageUrl: 'https://picsum.photos/seed/s5/400/400'
+  },
+  {
+    id: 's6',
+    name: 'Salchicha de Pavo Piamont Paq. 1.8 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Piamont',
+    price: 125.69,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha de pavo marca Piamont en paquete de 1.8 kg aprox.',
+    imageUrl: 'https://picsum.photos/seed/s6/400/400'
+  },
+  {
+    id: 's7',
+    name: 'Salchicha Franfurt de Pavo Piamont Paq. 1 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Piamont',
+    price: 77.01,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha Frankfurt de pavo marca Piamont en paquete de 1 kg aprox.',
+    imageUrl: 'https://picsum.photos/seed/s7/400/400'
+  },
+  {
+    id: 's8',
+    name: 'Salchicha Franfurt de Pavo Piamont Paq. 1.8 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Piamont',
+    price: 133.18,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha Frankfurt de pavo marca Piamont en paquete de 1.8 kg aprox.',
+    imageUrl: 'https://picsum.photos/seed/s8/400/400'
+  },
+  {
+    id: 's9',
+    name: 'Salchicha de Pavo para Asar Piamont Paq. 800 grs aprox',
+    category: 'Salchichas',
+    subcategory: 'Piamont',
+    price: 73.26,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha de pavo para asar marca Piamont.',
+    imageUrl: 'https://picsum.photos/seed/s9/400/400'
+  },
+  {
+    id: 's10',
+    name: 'Salchicha Franfurt d/ Pavo Bafar Club Paq. 2.2 kg aprox',
+    category: 'Salchichas',
+    subcategory: 'Bafar',
+    price: 117.60,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha Frankfurt de pavo marca Bafar Club.',
+    imageUrl: 'https://picsum.photos/seed/s10/400/400'
+  },
+  {
+    id: 's11',
+    name: 'Salchicha de Pavo Winds Paq. 1.4 aprox',
+    category: 'Salchichas',
+    subcategory: 'Winds',
+    price: 82.69,
+    unit: 'Paq',
+    stock: 100,
+    reserved: 0,
+    description: 'Salchicha de pavo marca Winds en paquete de 1.4 kg aprox.',
+    imageUrl: 'https://picsum.photos/seed/s11/400/400'
+  },
+
+  // TOCINOS
+  {
+    id: 't1',
+    name: 'Recorte de Tocino Piamont Paq. 1.7 kg aprox',
+    category: 'Tocinos',
+    subcategory: 'Piamont',
+    price: 112.07,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Recorte de tocino marca Piamont.',
+    imageUrl: 'https://picsum.photos/seed/t1/400/400'
+  },
+  {
+    id: 't2',
+    name: 'Tocinet Rosarense',
+    category: 'Tocinos',
+    subcategory: 'Rosarense',
+    price: 134.06,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Tocinet marca Rosarense.',
+    imageUrl: 'https://picsum.photos/seed/t2/400/400'
+  },
+  {
+    id: 't3',
+    name: 'Tocino Ahumado Winds Rebanado Paq. 1 kg aprox',
+    category: 'Tocinos',
+    subcategory: 'Winds',
+    price: 198.12,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Tocino ahumado rebanado marca Winds.',
+    imageUrl: 'https://picsum.photos/seed/t3/400/400'
+  },
+  {
+    id: 't4',
+    name: 'Tocino Moral 1 kg',
+    category: 'Tocinos',
+    subcategory: 'Moral',
+    price: 141.12,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Tocino marca Moral de 1 kg.',
+    imageUrl: 'https://picsum.photos/seed/t4/400/400'
+  },
+  {
+    id: 't5',
+    name: 'Tocino Piamont LM P/Hotdog Reb. Paq. 1 kg aprox',
+    category: 'Tocinos',
+    subcategory: 'Piamont',
+    price: 222.71,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Tocino Piamont LM rebanado especial para hot dogs.',
+    imageUrl: 'https://picsum.photos/seed/t5/400/400'
+  },
+  {
+    id: 't6',
+    name: 'Tocino Piamont ESP Tipo Americano Reb. Paq. 1 kg aprox',
+    category: 'Tocinos',
+    subcategory: 'Piamont',
+    price: 222.71,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Tocino Piamont especial tipo americano rebanado.',
+    imageUrl: 'https://picsum.photos/seed/t6/400/400'
+  },
+  {
+    id: 't7',
+    name: 'Recorte de Tocino Winds',
+    category: 'Tocinos',
+    subcategory: 'Winds',
+    price: 101.65,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Recorte de tocino marca Winds.',
+    imageUrl: 'https://picsum.photos/seed/t7/400/400'
+  },
+
+  // CHORIZOS, PEPERONI Y OTROS
+  {
+    id: 'chr1',
+    name: 'Peperoni Piamont Reb. Paq. 1.7 kg aprox',
+    category: 'Chorizos',
+    subcategory: 'Piamont',
+    price: 168.68,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Peperoni rebanado marca Piamont.',
+    imageUrl: 'https://picsum.photos/seed/chr1/400/400'
+  },
+  {
+    id: 'chr2',
+    name: 'Peperoni Importado 5.68 Bolsa Hillshibe',
+    category: 'Chorizos',
+    subcategory: 'Hillshibe',
+    price: 835.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Peperoni importado marca Hillshibe.',
+    imageUrl: 'https://picsum.photos/seed/chr2/400/400'
+  },
+  {
+    id: 'chr3',
+    name: 'Peperoni Nacional 1 kg Bolsa',
+    category: 'Chorizos',
+    subcategory: 'Nacional',
+    price: 125.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Peperoni nacional en bolsa de 1 kg.',
+    imageUrl: 'https://picsum.photos/seed/chr3/400/400'
+  },
+  {
+    id: 'chr4',
+    name: 'Peperoni California Gold',
+    category: 'Chorizos',
+    subcategory: 'California Gold',
+    price: 650.00,
+    unit: 'Pza',
+    stock: 100,
+    reserved: 0,
+    description: 'Peperoni marca California Gold.',
+    imageUrl: 'https://picsum.photos/seed/chr4/400/400'
+  },
+  {
+    id: 'chr5',
+    name: 'Salami Ahumado Piamont Reb. Paq. 1.7 kg aprox',
+    category: 'Chorizos',
+    subcategory: 'Piamont',
+    price: 162.07,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Salami ahumado rebanado marca Piamont.',
+    imageUrl: 'https://picsum.photos/seed/chr5/400/400'
+  },
+  {
+    id: 'chr6',
+    name: 'Chorizo de Cerdo Rosarense Pieza de 500 grs aprox',
+    category: 'Chorizos',
+    subcategory: 'Rosarense',
+    price: 107.38,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Chorizo de cerdo marca Rosarense en pieza de 500 grs.',
+    imageUrl: 'https://picsum.photos/seed/chr6/400/400'
+  },
+  {
+    id: 'chr7',
+    name: 'Chorizo de Cerdo Rosarense Pieza de 250 grs aprox',
+    category: 'Chorizos',
+    subcategory: 'Rosarense',
+    price: 107.38,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Chorizo de cerdo marca Rosarense en pieza de 250 grs.',
+    imageUrl: 'https://picsum.photos/seed/chr7/400/400'
+  },
+  {
+    id: 'chr8',
+    name: 'Pechuga de Pollo Congelada Individualmente',
+    category: 'Antojos',
+    subcategory: 'Varios',
+    price: 115.00,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Pechuga de pollo congelada individualmente.',
+    imageUrl: 'https://picsum.photos/seed/chr8/400/400'
+  },
+  {
+    id: 'chr9',
+    name: 'Cueritos Encurtidos Rosarense Bolsa 1 kg aprox',
+    category: 'Antojos',
+    subcategory: 'Rosarense',
+    price: 28.00,
+    unit: 'Pza',
+    stock: 100,
+    reserved: 0,
+    description: 'Cueritos encurtidos marca Rosarense en bolsa de 1 kg.',
+    imageUrl: 'https://picsum.photos/seed/chr9/400/400'
+  },
+  {
+    id: 'chr10',
+    name: 'Cueritos Encurtidos Rosarense a Granel Bolsa 8 kg aprox',
+    category: 'Antojos',
+    subcategory: 'Rosarense',
+    price: 25.36,
+    unit: 'Caja',
+    stock: 100,
+    reserved: 0,
+    description: 'Cueritos encurtidos marca Rosarense a granel.',
+    imageUrl: 'https://picsum.photos/seed/chr10/400/400'
+  },
+  {
+    id: 'chr11',
+    name: 'Queso de Puerco Rosarense en Pieza',
+    category: 'Chorizos',
+    subcategory: 'Rosarense',
+    price: 99.45,
+    unit: 'Kg',
+    stock: 100,
+    reserved: 0,
+    description: 'Queso de puerco marca Rosarense en pieza.',
+    imageUrl: 'https://picsum.photos/seed/chr11/400/400'
+  }
+];
+
+export const INITIAL_PRODUCTS: Product[] = RAW_INITIAL_PRODUCTS.map(p => ({
+  ...p,
+  ...getInitialSupplierForProduct(p.name, p.category, p.subcategory)
+}));
+
+export const COLORS = {
+  navy: '#001f3f',
+  green: '#059669',
+  white: '#ffffff',
+  gray: '#f8f9fa'
+};
+
+export const JABA_CONFIG: Record<string, { perJaba: number, unit: 'Pza' | 'Kg', options?: Record<string, number> }> = {
+  "Chorizo Rosarense 1/2": { perJaba: 20, unit: 'Kg' },
+  "Chorizo Rosarense 1/4": { perJaba: 20, unit: 'Kg' },
+  "Turkito Reb 1 KG": { perJaba: 20, unit: 'Pza' },
+  "Horneado Piamont Reb Rec": { perJaba: 20, unit: 'Pza' },
+  "Virginia Turkito": { perJaba: 20, unit: 'Pza' },
+  "(piñita)": { perJaba: 3, unit: 'Pza' },
+  "Holandez Piamont Reb Rec": { perJaba: 20, unit: 'Pza' },
+  "Lunch Winnis Basicos Pza": { perJaba: 10, unit: 'Pza' },
+  "Lunch Winnis Reb 1": { perJaba: 20, unit: 'Pza' },
+  "Americano Piamont Reb Rec": { perJaba: 20, unit: 'Pza' },
+  "Americano Winnis Reb Rec": { perJaba: 20, unit: 'Pza' },
+  "Virginia de Pavo Piamont Basicos": { perJaba: 6, unit: 'Pza' },
+  "Virginia de Pavo Reb Basicos": { perJaba: 20, unit: 'Pza' },
+  "York Piamont Ovalado": { perJaba: 3, unit: 'Pza' },
+  "Queso de Puerco Basicos": { perJaba: 6, unit: 'Pza' },
+  "Salchicha de Pavo Piamont Jumbo": { perJaba: 9, unit: 'Pza' },
+  "Salchicha de Pavo Frankfurt Autoservicios": { perJaba: 12, unit: 'Pza' },
+  "Salchicha de Pavo Hot Dog Turkito": { perJaba: 12, unit: 'Pza' },
+  "Salchicha de Pavo Piamont Frankfurt 1 KG": { perJaba: 20, unit: 'Pza' },
+  "Salchicha de Pavo Piamont 2 KG": { perJaba: 12, unit: 'Pza' },
+  "Salchicha de Pavo Winnis 1.5 KG": { perJaba: 14, unit: 'Pza' },
+  "Salchicha para Asar Piamont": { perJaba: 20, unit: 'Pza' },
+  "Salchicha roja winnis": { perJaba: 30, unit: 'Pza' },
+  "Cueritos encurtidos en bolsa": { perJaba: 16, unit: 'Pza' },
+  "Peperoni Piamont Reb": { perJaba: 12, unit: 'Pza' },
+  "Salami Ahumado Piamont Reb": { perJaba: 12, unit: 'Pza' },
+  "Salchicha Frankfurt Winds": { perJaba: 6, unit: 'Pza' },
+  "Viena Naranja": { perJaba: 14, options: { "Verde": 14, "Negra": 16 }, unit: 'Pza' },
+  "Vienna Naranja": { perJaba: 14, options: { "Verde": 14, "Negra": 16 }, unit: 'Pza' },
+  "Salchicha Food Service": { perJaba: 6, unit: 'Pza' },
+  "Tocino Ahumado L/M 1 KG": { perJaba: 15, unit: 'Pza' },
+  "Tocino Ahumado Piamont Americano": { perJaba: 15, unit: 'Pza' },
+  "Recorte de Tocino Economico": { perJaba: 12, unit: 'Pza' },
+  "Recorte de Tocino Ahumado 1": { perJaba: 12, unit: 'Pza' },
+  "Tocino Rosarense": { perJaba: 15, unit: 'Pza' },
+  "Tocinet Rosarense": { perJaba: 15, unit: 'Pza' },
+  "Tocino Winds": { perJaba: 15, unit: 'Pza' },
+  "Tocinet Winds": { perJaba: 15, unit: 'Pza' },
+  "Tocino El Moral Rebanado": { perJaba: 15, unit: 'Pza' },
+};

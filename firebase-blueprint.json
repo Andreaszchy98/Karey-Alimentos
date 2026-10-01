@@ -1,0 +1,196 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name" },
+        "address": { "type": "string", "description": "Delivery address" },
+        "phone": { "type": "string", "description": "Cellphone number" },
+        "email": { "type": "string", "description": "Email address" },
+        "role": { "type": "string", "enum": ["client", "company", "admin", "dispatcher", "preparer", "driver", "loader", "store_sales", "inventory"], "description": "User role" },
+        "viewAs": { "type": "string", "enum": ["client", "company", "admin", "dispatcher", "preparer", "driver", "loader", "store_sales", "inventory"], "description": "Admin view mode" },
+        "location": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Product details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "stock": { "type": "integer", "description": "Available stock" },
+        "reserved": { "type": "integer", "description": "Reserved for pending orders" },
+        "isHidden": { "type": "boolean", "description": "Whether product is hidden from clients and staff" }
+      },
+      "required": ["name", "category", "price", "stock", "reserved"]
+    },
+    "InventoryRequest": {
+      "title": "InventoryRequest",
+      "description": "Request to modify inventory",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "type": { "type": "string", "enum": ["update", "waste"] },
+        "oldValue": { "type": "integer" },
+        "newValue": { "type": "integer" },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "requestedBy": { "type": "string" },
+        "requestedByName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "type", "newValue", "status", "requestedBy", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "App notification",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["order", "inventory", "system"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "type", "read", "createdAt"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Application settings",
+      "type": "object",
+      "properties": {
+        "logoUrl": { "type": "string", "description": "URL or base64 of the app logo" },
+        "appName": { "type": "string" }
+      }
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order details",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userPhone": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "integer" },
+              "price": { "type": "number" }
+            }
+          }
+        },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "ready", "shipped", "delivered", "cancelled"] },
+        "paymentMethod": { "type": "string", "enum": ["cash", "card"] },
+        "type": { "type": "string", "enum": ["delivery", "pickup"] },
+        "pickupCode": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "address": { "type": "string" },
+        "paymentStatus": { "type": "string", "enum": ["pending", "paid", "failed"] },
+        "deliverySlot": { "type": "string" },
+        "deliveryWindowStart": { "type": "string", "description": "Preferred delivery window start (HH:mm)" },
+        "deliveryWindowEnd": { "type": "string", "description": "Preferred delivery window end (HH:mm)" },
+        "deliveryWindowNote": { "type": "string" },
+        "driverId": { "type": "string" },
+        "eta": { "type": "string" },
+        "driverLocation": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "deliveryFee": { "type": "number", "description": "Delivery cost based on distance" },
+        "deliveryDistance": { "type": "number", "description": "Estimated street distance in kilometers" },
+        "adjustedTotal": { "type": "number", "description": "Total after returns" },
+        "hasReturns": { "type": "boolean" },
+        "routeId": { "type": "string" },
+        "routeAssignedAt": { "type": "string", "format": "date-time" },
+        "arrivedAt": { "type": "string", "format": "date-time" },
+        "reviewedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userName", "userEmail", "userPhone", "items", "total", "status", "createdAt", "address", "paymentStatus"]
+    },
+    "Return": {
+      "title": "Return",
+      "description": "Product return request from customer",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "productId": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "integer" },
+              "price": { "type": "number" },
+              "reason": { "type": "string" },
+              "photoUrl": { "type": "string" }
+            }
+          }
+        },
+        "totalReduction": { "type": "number", "description": "Amount to subtract from order total" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "resolution": { "type": "string", "enum": ["none", "waste", "stock"], "description": "Admin decision" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "processedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderId", "userId", "userName", "items", "totalReduction", "status", "createdAt"]
+    },
+    "DeliveryRoute": {
+      "title": "DeliveryRoute",
+      "description": "Logistical route assignment",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "driverId": { "type": "string" },
+        "unitNumber": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "in_progress", "completed", "cancelled"] },
+        "orderIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "driverId", "unitNumber", "status", "orderIds", "createdAt"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Product suppliers catalog",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "contactName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "categoriesSupplied": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "string" },
+        "isDefault": { "type": "boolean" }
+      },
+      "required": ["name"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/products/{productId}": { "schema": "Product", "description": "Product catalog" },
+    "/orders/{orderId}": { "schema": "Order", "description": "Customer orders" },
+    "/inventoryRequests/{requestId}": { "schema": "InventoryRequest", "description": "Inventory modification requests" },
+    "/notifications/{notificationId}": { "schema": "Notification", "description": "App notifications" },
+    "/settings/{settingId}": { "schema": "Settings", "description": "App settings" },
+    "/categories/{categoryId}": { "schema": "Category", "description": "Product categories" },
+    "/returns/{returnId}": { "schema": "Return", "description": "Customer return requests" },
+    "/routes/{routeId}": { "schema": "DeliveryRoute", "description": "Delivery routes and logistical assignments" },
+    "/suppliers/{supplierId}": { "schema": "Supplier", "description": "Supplier catalog" }
+  }
+}

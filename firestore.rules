@@ -1,0 +1,251 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn();
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isStaff() {
+      return isAdmin() || (isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['dispatcher', 'preparer', 'driver', 'loader', 'store_sales', 'inventory']);
+    }
+
+    function isKareyInventory() {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'karey_inventory';
+    }
+
+    function isDispatcher() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'dispatcher';
+    }
+
+    function isValidEmail(email) {
+      return email is string && (email == '' || (email.size() <= 256 && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")));
+    }
+
+    // --- Entity Validators ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'role']) &&
+             (data.keys().size() >= 2 && data.keys().size() <= 20) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             (!('email' in data) || isValidEmail(data.email)) &&
+             data.role in ['client', 'company', 'admin', 'dispatcher', 'preparer', 'driver', 'loader', 'store_sales', 'inventory', 'karey_inventory'] &&
+             (!('viewAs' in data) || data.viewAs in ['client', 'company', 'admin', 'dispatcher', 'preparer', 'driver', 'loader', 'store_sales', 'inventory', 'karey_inventory']) &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 25)) &&
+             (!('address' in data) || (data.address is string && data.address.size() <= 500)) &&
+             (!('location' in data) || (data.location.lat is number && data.location.lng is number)) &&
+             (!('creditLimit' in data) || (data.creditLimit is number && data.creditLimit >= 0));
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'category', 'price', 'stock', 'reserved']) &&
+             (data.keys().size() >= 5 && data.keys().size() <= 25) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.price is number && data.price >= 0 &&
+             data.stock is number &&
+             data.reserved is number &&
+             (!('isHidden' in data) || data.isHidden is bool) &&
+             (!('isDeleted' in data) || data.isDeleted is bool);
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['userId', 'userName', 'items', 'total', 'status', 'createdAt', 'address', 'paymentStatus', 'paymentMethod', 'type']) &&
+             (data.keys().size() >= 10 && data.keys().size() <= 60) &&
+             data.userName is string && data.userName.size() <= 100 &&
+             (!('userEmail' in data) || isValidEmail(data.userEmail)) &&
+             (!('userPhone' in data) || (data.userPhone is string && data.userPhone.size() <= 50)) &&
+             data.items is list && data.items.size() <= 100 &&
+             data.total is number && data.total >= 0 &&
+             data.status in ['pending', 'accepted', 'processing', 'ready', 'shipped', 'delivered', 'cancelled', 'completed'] &&
+             data.paymentStatus in ['pending', 'paid', 'failed'] &&
+             data.paymentMethod in ['cash', 'card', 'card_on_delivery', 'online', 'credit'] &&
+             data.type in ['delivery', 'pickup'] &&
+             data.address is string && data.address.size() <= 1000 &&
+             (!('returnedItems' in data) || data.returnedItems is list) &&
+             (!('hasReturns' in data) || data.hasReturns is bool) &&
+             (!('adjustedTotal' in data) || data.adjustedTotal is number) &&
+             (!('routeId' in data) || data.routeId is string) &&
+             (!('routeAssignedAt' in data) || data.routeAssignedAt is timestamp) &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp) &&
+             (!('paidAt' in data) || data.paidAt is timestamp) &&
+             (!('deliveredAt' in data) || data.deliveredAt is timestamp);
+    }
+
+    function isValidReturn(data) {
+      return data.keys().hasAll(['orderId', 'userId', 'userName', 'items', 'totalReduction', 'status', 'createdAt']) &&
+             (data.keys().size() >= 7 && data.keys().size() <= 15) &&
+             data.orderId is string &&
+             data.userId is string &&
+             data.userName is string &&
+             data.items is list && data.items.size() >= 0 &&
+             data.totalReduction is number &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             (!('resolution' in data) || data.resolution in ['none', 'waste', 'stock', '']) &&
+             (!('processedAt' in data) || data.processedAt is timestamp || data.processedAt == null);
+    }
+
+    function isValidInventoryRequest(data) {
+      return data.keys().hasAll(['productId', 'type', 'newValue', 'status', 'requestedBy', 'createdAt']) &&
+             (data.keys().size() >= 6 && data.keys().size() <= 15) &&
+             data.productId is string &&
+             data.type in ['update', 'waste', 'stock'] &&
+             (data.newValue is int || data.newValue is number) &&
+             data.status in ['pending', 'approved', 'rejected'];
+    }
+
+    function isValidDeliveryRoute(data) {
+      return data.keys().hasAll(['name', 'driverId', 'unitNumber', 'status', 'orderIds', 'createdAt']) &&
+             (data.keys().size() >= 6 && data.keys().size() <= 15) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.driverId is string &&
+             data.unitNumber is string && data.unitNumber.size() <= 50 &&
+             data.status in ['active', 'in_progress', 'completed', 'cancelled'] &&
+             data.orderIds is list &&
+             (!('releasedToPrep' in data) || data.releasedToPrep is bool) &&
+             (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /routes/{routeId} {
+      allow read: if isStaff();
+      allow create: if (isAdmin() || isDispatcher()) && isValidId(routeId) && isValidDeliveryRoute(incoming());
+      allow update: if (isAdmin() || isDispatcher() || (isStaff() && existing().driverId == request.auth.uid)) && 
+                      isValidId(routeId) && isValidDeliveryRoute(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow list: if isStaff();
+      allow get: if isSignedIn() && (isOwner(userId) || isStaff());
+      allow create: if isOwner(userId) && isValidUser(incoming()) && 
+                    incoming().role in ['client', 'company'];
+      allow update: if isSignedIn() && (
+        (isOwner(userId) && 
+         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'address', 'location', 'viewAs']) && 
+         isValidUser(incoming())) ||
+        (isAdmin() && isValidUser(incoming()))
+      );
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, delete: if isAdmin() && isValidId(productId);
+      allow update: if isSignedIn() && isVerified() && isValidId(productId) && (
+        (isAdmin() && isValidProduct(incoming())) ||
+        (isStaff() && incoming().diff(existing()).affectedKeys().hasOnly(['stock', 'reserved', 'imageUrl', 'description', 'name', 'category', 'price']) && isValidProduct(incoming()))
+      );
+    }
+
+    match /orders/{orderId} {
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow get: if isSignedIn() && isValidId(orderId) && (resource.data.userId == request.auth.uid || isStaff());
+      allow create: if isVerified() && isValidId(orderId) && isValidOrder(incoming()) && 
+                    (incoming().userId == request.auth.uid || isStaff()) &&
+                    incoming().createdAt == request.time;
+      allow update: if isVerified() && isValidId(orderId) && (
+        (isAdmin() && isValidOrder(incoming())) ||
+        (isStaff() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'onboarded', 'driverId', 'driverLocation', 'eta', 'paymentStatus', 'paidAt', 'updatedAt', 'adjustedTotal', 'hasReturns', 'arrivedAt', 'reviewedAt', 'preparedAt', 'dispatchedAt', 'deliveredAt', 'routeId', 'routeAssignedAt', 'items', 'returnedItems']) && isValidOrder(incoming())) ||
+        (resource.data.userId == request.auth.uid && (
+          (existing().status == 'pending' && incoming().diff(existing()).affectedKeys().hasOnly(['status']) && incoming().status == 'cancelled') ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['hasReturns', 'adjustedTotal', 'items', 'returnedItems']) && incoming().hasReturns == true)
+        ))
+      );
+    }
+
+    match /returns/{returnId} {
+      allow list: if isSignedIn() && (isStaff() || resource.data.userId == request.auth.uid);
+      allow get: if isSignedIn() && isValidId(returnId) && (isStaff() || resource.data.userId == request.auth.uid);
+      allow create: if isVerified() && isValidId(returnId) && isValidReturn(incoming()) && 
+                    (incoming().userId == request.auth.uid || isStaff()) &&
+                    get(/databases/$(database)/documents/orders/$(incoming().orderId)).data.userId == request.auth.uid &&
+                    incoming().createdAt == request.time;
+      allow update: if isVerified() && isValidId(returnId) && (
+        (isAdmin() && isValidReturn(incoming())) ||
+        (isStaff() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'resolution', 'processedAt']) && isValidReturn(incoming()))
+      );
+    }
+
+    match /inventoryRequests/{requestId} {
+      allow list: if isStaff();
+      allow get: if isStaff();
+      allow create: if isStaff() && isVerified() && isValidId(requestId) && isValidInventoryRequest(incoming()) &&
+                    (incoming().requestedBy == request.auth.uid || incoming().requestedBy == 'system') &&
+                    incoming().createdAt == request.time;
+      allow update: if isAdmin() && isVerified() && isValidId(requestId) && isValidInventoryRequest(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isSignedIn() && (incoming().userId == request.auth.uid || isStaff());
+      allow update: if isOwner(existing().userId) && incoming().diff(existing()).affectedKeys().hasOnly(['read']);
+      allow delete: if isOwner(existing().userId);
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /units/{unitId} {
+      allow read: if isKareyInventory() || isAdmin() || isStaff();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || isKareyInventory();
+    }
+
+    match /containerMovements/{movementId} {
+      allow read: if isKareyInventory() || isAdmin();
+      allow create, update: if isKareyInventory() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /suppliers/{supplierId} {
+      allow read: if true;
+      allow write: if isAdmin() || isStaff();
+    }
+  }
+}

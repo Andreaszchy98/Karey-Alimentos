@@ -1,0 +1,10 @@
+{
+  "name": "Karey Alimentos",
+  "description": "Tu tienda oficial de carnes frías y embutidos Karey Alimentos. Sistema integral con gestión de inventario, logística de envíos y administración de ventas en mostrador y pedidos digitales.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

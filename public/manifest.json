@@ -1,0 +1,23 @@
+{
+  "name": "Karey Alimentos",
+  "short_name": "Karey Alimentos",
+  "description": "Gestión de pedidos e inventario de productos cárnicos y lácteos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "https://picsum.photos/192/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://picsum.photos/512/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

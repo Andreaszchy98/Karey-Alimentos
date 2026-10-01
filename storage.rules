@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isUnder5MB() {
+      return request.resource.size <= 5 * 1024 * 1024;
+    }
+
+    function getUserData() {
+      return firestore.get(/databases/ai-studio-665af4d4-475a-445e-90c2-f2eb75e75d14/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'admin';
+    }
+
+    function isStaff() {
+      return isSignedIn() && getUserData().role in ['admin', 'dispatcher', 'preparer', 'driver', 'loader', 'store_sales', 'inventory'];
+    }
+
+    // 1. Product Images: Publicly readable, writeable by authorized inventory/admin staff
+    match /products/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && isStaff() && isImage() && isUnder5MB();
+    }
+
+    // 2. Branding & App Logo: Publicly readable, editable only by system admins
+    match /branding/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() && isImage() && isUnder5MB();
+    }
+
+    // 3. Order Return Evidence & Inspection Photos
+    match /returns/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isImage() && isUnder5MB();
+    }
+
+    // 4. User Profile Avatars
+    match /users/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && request.auth.uid == userId && isImage() && isUnder5MB();
+    }
+
+    // Default deny for all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

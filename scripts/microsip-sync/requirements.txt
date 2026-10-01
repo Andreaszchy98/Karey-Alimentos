@@ -1,0 +1,4 @@
+firebase-admin>=6.2.0
+fdb>=2.0.2
+firebird-driver>=1.10.0
+python-dotenv>=1.0.0

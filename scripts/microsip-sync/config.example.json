@@ -1,0 +1,23 @@
+{
+  "firebird": {
+    "host": "localhost",
+    "port": 3050,
+    "database": "C:\\Microsip datos\\KAREY_ALIMENTOS.FDB",
+    "user": "SYSDBA",
+    "password": "masterkey",
+    "charset": "ISO8859_1",
+    "almacen_id": null
+  },
+  "firebase": {
+    "service_account_path": "./serviceAccountKey.json",
+    "project_id": "gen-lang-client-0507212703",
+    "database_id": "ai-studio-665af4d4-475a-445e-90c2-f2eb75e75d14"
+  },
+  "sync_options": {
+    "update_stock": true,
+    "update_price": false,
+    "create_missing_products": false,
+    "match_by": "id_or_sku",
+    "interval_minutes": 10
+  }
+}

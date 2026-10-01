@@ -41,6 +41,8 @@ export interface Category {
 
 export interface Product {
   id: string;
+  sku?: string;
+  microsipClave?: string;
   name: string;
   category: string;
   subcategory?: string;
@@ -57,6 +59,7 @@ export interface Product {
   isHidden?: boolean;
   piecesPerJaba?: number;
   packaging?: 'bolsa' | 'jaba' | 'jaba_verde' | 'jaba_negra';
+  lastMicrosipSync?: any;
 }
 
 export interface InventoryRequest {

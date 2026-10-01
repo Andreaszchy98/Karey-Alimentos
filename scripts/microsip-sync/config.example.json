@@ -3,10 +3,12 @@
     "host": "localhost",
     "port": 3050,
     "database": "C:\\Microsip datos\\KAREY_ALIMENTOS.FDB",
-    "user": "SYSDBA",
-    "password": "masterkey",
+    "user": "CONSULTA",
+    "password": "tu_password_seguro",
     "charset": "ISO8859_1",
-    "almacen_id": null
+    "almacen_id": null,
+    "nota_seguridad": "Se recomienda usar un usuario de solo lectura (DQL) en lugar de SYSDBA",
+    "custom_query": null
   },
   "firebase": {
     "service_account_path": "./serviceAccountKey.json",
@@ -14,10 +16,11 @@
     "database_id": "ai-studio-665af4d4-475a-445e-90c2-f2eb75e75d14"
   },
   "sync_options": {
+    "match_by": "sku",
     "update_stock": true,
     "update_price": false,
     "create_missing_products": false,
-    "match_by": "id_or_sku",
+    "allow_negative_stock": true,
     "interval_minutes": 10
   }
 }

@@ -1,95 +1,72 @@
 # Sincronizador Microsip -> Karey Alimentos (Firebase Firestore)
 
-Este script permite sincronizar de forma automática o programada las existencias reales de inventario desde **Microsip** (base de datos Firebird `.FDB`) hacia la base de datos de tu aplicación en la nube (**Firebase Firestore**).
+Módulo puente para sincronizar las existencias reales de inventario desde **Microsip** (base de datos Firebird `.FDB` o reportes Excel/CSV) hacia la base de datos de tu app en **Firebase Firestore**.
 
 ---
 
-## 📁 Archivos incluidos
-
-- `sync_microsip.py`: Script principal en Python de sincronización por lotes.
-- `config.example.json`: Plantilla de configuración con la conexión a Firebird y Firebase.
-- `requirements.txt`: Librerías de Python requeridas.
-- `run_sync.bat`: Acceso directo para ejecutar la sincronización en Windows con doble clic.
+## 🔒 Seguridad
+- **Archivos protegidos:** Tanto `serviceAccountKey.json` como `config.json` y archivos `.fdb`/`.csv` están protegidos en `.gitignore` para evitar que se suban a repositorios de código.
+- **Usuario de Firebird:** Se recomienda encarecidamente crear un usuario de **solo lectura** en Firebird para este script (en lugar de `SYSDBA` con `masterkey`). El script únicamente requiere permisos `SELECT` sobre las tablas de artículos y existencias.
 
 ---
 
-## 🚀 Pasos de Instalación y Configuración
+## 📁 Archivos del Paquete
+- `sync_microsip.py`: Script principal de sincronización (admite `--dry-run`, `--file`, `--watch`).
+- `config.example.json`: Plantilla de configuración.
+- `requirements.txt`: Dependencias (`firebase-admin`, `firebird-driver`, `pandas`, `openpyxl`).
+- `run_sync.bat`: Acceso directo para Windows.
 
-### 1. Requisitos Previos en el Servidor o PC de Microsip
-1. Tener **Python 3.9 o superior** instalado en Windows (asegúrate de marcar la casilla *"Add python.exe to PATH"* durante la instalación).
-2. Abrir la terminal (CMD o PowerShell) en esta carpeta y ejecutar:
+---
+
+## 🛠️ Instalación Rápida
+
+1. Instalar dependencias en la máquina con Windows:
    ```cmd
    pip install -r requirements.txt
    ```
+2. Obtener la clave de Firebase:
+   - Descárgala desde [Firebase Console > Cuentas de servicio](https://console.firebase.google.com/project/gen-lang-client-0507212703/settings/serviceaccounts/adminsdk).
+   - Guárdala como `serviceAccountKey.json` en esta misma carpeta.
+3. Copiar `config.example.json` a `config.json` y ajustar la ruta de la base de datos o credenciales.
 
 ---
 
-### 2. Descargar la Clave de Firebase (`serviceAccountKey.json`)
-Para que el script pueda escribir en tu base de datos de Firebase:
-1. Ingresa a [Firebase Console](https://console.firebase.google.com/project/gen-lang-client-0507212703/settings/serviceaccounts/adminsdk).
-2. Haz clic en el botón **"Generar nueva clave privada"** (Generate new private key).
-3. Se descargará un archivo `.json`. Cámbiale el nombre a `serviceAccountKey.json` y colócalo en esta misma carpeta junto a `sync_microsip.py`.
+## 🧪 Pruebas Iniciales Recomendadas (Paso a Paso)
 
----
-
-### 3. Configurar la Conexión (`config.json`)
-Copia `config.example.json` y renómbralo a `config.json`. Ajusta los parámetros:
-
-```json
-{
-  "firebird": {
-    "host": "localhost",
-    "port": 3050,
-    "database": "C:\\Microsip datos\\KAREY_ALIMENTOS.FDB",
-    "user": "SYSDBA",
-    "password": "masterkey",
-    "charset": "ISO8859_1",
-    "almacen_id": null
-  },
-  "firebase": {
-    "service_account_path": "./serviceAccountKey.json",
-    "project_id": "gen-lang-client-0507212703",
-    "database_id": "ai-studio-665af4d4-475a-445e-90c2-f2eb75e75d14"
-  },
-  "sync_options": {
-    "update_stock": true,
-    "update_price": false,
-    "interval_minutes": 10
-  }
-}
-```
-
-* **`database`**: La ruta al archivo `.FDB` de tu empresa en Microsip (ej. `C:\Microsip datos\EMPRESA.FDB`).
-* **`almacen_id`**: Si quieres filtrar solo las existencias de un almacén específico (ej. Almacén Central), pon el ID numérico. Si pones `null`, sumará las existencias de todos los almacenes.
-* **`interval_minutes`**: Cada cuántos minutos repetirá la sincronización en modo automático.
-
----
-
-## ⚡ Modos de Ejecución
-
-### Modo A: Doble Clic (Bucle Continuo)
-Simplemente haz doble clic en el archivo **`run_sync.bat`**. Mantendrá una ventana abierta sincronizando el inventario cada N minutos automáticamente.
-
-### Modo B: Tarea Programada de Windows (Ideal para Servidores)
-Para que se ejecute en segundo plano sin ventanas abiertas:
-1. Abre el **Programador de tareas de Windows** (`taskschd.msc`).
-2. Crea una **Tarea Básica** llamada `Sincronizar Microsip Karey`.
-3. Desencadenador: **Diariamente**, repetir cada **10 minutos**.
-4. Acción: **Iniciar un programa**.
-   - Programa o script: `python.exe`
-   - Argumentos: `C:\ruta\al\script\sync_microsip.py`
-   - Iniciar en: `C:\ruta\al\script\`
-
-### Modo C: Sincronización Manual por Archivo CSV / Excel
-Si aún no configuras la red de Firebird y quieres probar con un reporte exportado desde Microsip:
+### Paso 1: Prueba de simulación con archivo exportado (Sin tocar Firebird)
+Exporta un reporte de inventario desde Microsip a CSV o Excel y corre:
 ```cmd
-python sync_microsip.py --csv reporte_existencias.csv
+python sync_microsip.py --file reporte_microsip.csv --dry-run
 ```
-*(El archivo solo necesita tener una columna con la Clave/Código y otra con la Existencia).*
+> **Nota:** El parámetro `--dry-run` solo simula. Te mostrará en pantalla cuántos artículos coincidieron por clave (SKU), cuáles no, y qué cambios se harían, **sin modificar un solo dato en Firestore**.
+
+### Paso 2: Prueba de simulación directa contra Firebird
+Una vez configurado `config.json` con la ruta a la base de datos `.FDB`:
+```cmd
+python sync_microsip.py --dry-run
+```
+Verifica en pantalla la muestra de 5 u 8 productos y compáralos contra la pantalla de Microsip Inventarios para asegurar que las existencias coinciden al 100%.
+
+### Paso 3: Sincronización real
+Una vez confirmada la coincidencia:
+```cmd
+python sync_microsip.py
+```
+O en bucle continuo:
+```cmd
+python sync_microsip.py --watch
+```
 
 ---
 
-## 🛡️ Seguridad y Rendimiento
-- **Escrituras inteligentes:** El script solo actualiza los productos cuyo stock haya cambiado en Microsip, evitando consumo innecesario de cuota en Firebase.
-- **Transacciones por lotes:** Aplica las modificaciones en bloques de 400 productos por segundo.
-- **Acceso seguro:** Solo lee datos de Microsip (`SELECT`), no modifica ninguna tabla interna de Microsip.
+## ⚠️ Aspectos de Diseño a Definir con el Cliente
+
+1. **Dos fuentes de verdad para el stock:**
+   - La app descuenta inventario en tiempo real cuando se levantan y entregan pedidos.
+   - Si Microsip se sincroniza cada 10 minutos, pero en la oficina física aún no han capturado la factura o remisión del pedido, la sincronización volvería a inflar temporalmente el stock en la app.
+   - *Recomendación:* Definir si Microsip es la autoridad absoluta (y el personal factura de inmediato), o si la app descuenta localmente y Microsip solo realiza ajustes de corte diario/turnos.
+2. **Unidades de Medida:**
+   - La app maneja `Kg`, `Paq`, `Pza`, además de cajas y piezas por jaba.
+   - Hay que asegurar que la clave del artículo en Microsip corresponda a la misma unidad de venta en la app (por ejemplo, si en la app se vende por Kg, que en Microsip la existencia esté en Kg y no en paquetes).
+3. **Existencias negativas:**
+   - Si en Microsip se captura una venta sin existencia previa, el sistema puede registrar saldo negativo. El script emite una advertencia `[⚠️ AVISO NEGATIVO]` para identificar artículos con desajuste de captura en el ERP.

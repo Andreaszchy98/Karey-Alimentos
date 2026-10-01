@@ -97,6 +97,7 @@ export function InventoryView({
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (product.sku || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (product.subcategory || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'Todos' || product.category === selectedCategory;
     const matchesSubcategory = selectedSubcategory === 'Todas' || product.subcategory === selectedSubcategory;
@@ -530,6 +531,11 @@ export function InventoryView({
                       {product.category}
                       {product.subcategory && ` • ${product.subcategory}`}
                     </p>
+                    {product.sku && (
+                      <span className="inline-flex items-center bg-gray-100 text-gray-700 font-mono text-[9px] font-bold px-1.5 py-0.5 rounded">
+                        SKU: {product.sku}
+                      </span>
+                    )}
                     {product.isHidden && effectiveRole === 'admin' && (
                       <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 border border-amber-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
                         <EyeOff className="w-2.5 h-2.5 text-amber-700" />

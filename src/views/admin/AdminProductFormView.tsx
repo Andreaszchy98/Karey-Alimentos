@@ -30,6 +30,7 @@ export function AdminProductFormView({
   onProductDeleted?: (id: string) => void; 
 }) {
   const isAdmin = effectiveRole === 'admin';
+  const [sku, setSku] = useState(product?.sku || product?.microsipClave || '');
   const [name, setName] = useState(product?.name || '');
   const [category, setCategory] = useState(product?.category || categories[0]?.name || '');
   const [subcategory, setSubcategory] = useState(product?.subcategory || '');
@@ -80,6 +81,8 @@ export function AdminProductFormView({
     try {
       const selectedSup = suppliers.find(s => s.id === supplierId);
       const productData: Partial<Product> = {
+        sku: sku.trim() || '',
+        microsipClave: sku.trim() || '',
         name: name || 'S/N',
         category: category || 'Sin Categoría',
         subcategory: subcategory || '',
@@ -207,9 +210,20 @@ export function AdminProductFormView({
           )}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-gray-400 uppercase ml-1">Nombre</label>
-          <Input value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} placeholder="Nombre del producto" disabled={!isAdmin} />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Código / SKU (Clave Microsip)</label>
+            <Input 
+              value={sku} 
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)} 
+              placeholder="Ej: SAL-001 o 7501020304" 
+              disabled={!isAdmin} 
+            />
+          </div>
+          <div className="sm:col-span-2 space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Nombre</label>
+            <Input value={name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} placeholder="Nombre del producto" disabled={!isAdmin} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -6,3 +6,13 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Microsip sync & secrets
+serviceAccountKey.json
+*serviceAccount*.json
+scripts/microsip-sync/config.json
+*.fdb
+*.csv
+*.xlsx
+__pycache__/
+*.pyc
